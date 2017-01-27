@@ -1,0 +1,171 @@
+README for Lab1a: Simpleton Shell
+Matthew Kuzdal - ID: 404564296
+
+This directory contains the following files:
+
+	simpsh.c : a c program that acts as a very simple, stripped down shell with basic file
+		   access and pipeing functionality. The following option descriptions, 
+		   limitations, and extra features are described below:
+
+		The following options are the file flags that affect the next file being opened.
+		If no other file is opened, these options are ignored. Once a file is open, the
+		flags are reset:
+
+			--append : adds the `O_APPEND' flag to the list of oflags.
+
+			--cloexec : adds the `O_CLOEXEC' flag to the list of oflags.
+
+			--creat : adds the `O_CREAT' flag to the list of oflags.
+
+			--directory : adds the `O_DIRECTORY' flag to the list of oflags.
+
+			--dsync : adds the `O_DSYNC' flag to the list of oflags.
+
+			--excl : adds the `O_EXCL' flag to the list of oflags.
+
+			--nofollow : adds the `O_NOFOLLOW' flag to the list of oflags.
+
+			--nonblock : adds the `O_NONBLOCK' flag to the list of oflags.
+
+			--rsync : adds the `O_RSYNC' flag to the list of oflags.
+
+			--sync : adds the `O_SYNC' flag to the list of oflags.
+
+			--trunc : adds the `O_TRUNC' flag to the list of oflags.
+
+
+		The following options are the file-opening options, which consume all previously
+		called oflags when the option is pared:		
+		
+			--rdonly <file_name> : opens the file `file_name' with the `O_RDONLY'
+					       flag. If the file could not be open (i.e., the 
+				               file does not exist and the create flag is not
+					       set), then this command will be skipped, an
+					       error message will be displayed to STDERR and
+					       when the function finishes executing, simpsh will 
+					       exit with exit code 1.
+
+			--wronly <file_name> : opens the file `file_name' with the `O_WRONLY'
+					       flag. Error handling is the same as `--rdonly'. 
+			
+			--rdwr <file_name> : opens the file `file_name' with the `O_RDWR' flag.
+				 	     Error handling is the same as `--rdonly'.
+
+			--pipe : opens a pipe, consuming 2 file descriptors (one for the write
+				 end and one for the read end). If an error occurs while opening
+			 	 the pipe, then this command will be skipped, an error message 
+				 will be displayed to STDERR and when the function finishes 
+				 executing, simpsh will exit with exit code 1. 
+
+
+		The following options are subcommand options:
+
+			--command i o e cmd args : executes the shell command `cmd' with a list
+						   of zero or more arguments to the command 
+						   denoted by `args'. The command option supports
+						   input, output, and error redirection denoted
+						   by the three file descriptors `i', `o', and
+						   `e' respectively. Command requires at least 4
+						   arguments denoted by the input fildes, the
+						   output fildes, the error fildes, and the shell 
+						   command to run. If there are not enough 
+						   arguments an error message will be displayed 
+						   to STDERR and the command will be skipped. 
+						   If an invalid file descriptor is used as 
+						   command arguments (i.e., one that has already 
+						   been closed or has not been opened yet) an 
+						   error will also be displayed and the command 
+						   skipped. 
+
+			--wait : waits for all of the active subprocesses (commands) to finish
+				 executing. After each one finishes, the function will 
+				 terminate with exit code 1 if any error occured, otherwise
+				 the largest error code of all of the commands executed during
+				 the subprocesses.
+
+
+		The following are the miscellaneous options:
+
+			--close N : closes the file with file descriptor `N'. If N is an invalid 
+				    file descriptor (i.e., it has already been closed or that 
+				    file has not been opened yet) then this command will be 
+				    skipped, an error message will be displayed to STDERR and 
+				    when the function finishes executing, simpsh will exit 
+				    with exit code 1.
+	
+			--verbose : outputs a line to standard output containing the option as 
+				    is is being executed. The verbose flag will only output all 
+				    options after and including the verbose flag.
+
+			--profile :
+			
+			--abort : crashes the shell by raising a segmentation violation causing 
+				  a core dump and immediatly exiting the program.
+			
+			--catch N : catches the signal N, where N is a decimal integer. The shell
+				    then exits with status code N and writes a message to stderr.
+			
+			--ignore N : ignores the signal N.
+
+			--default N : causes the shell to use the default behavior for N.
+
+			--pause : waits for any signal to arrive.
+	
+	Makefile : utility makefile for the program. The following operations are supported:
+	
+			make : compiles and build the lab1 exectuable
+		
+			make check : runs a quick smoke-test on the state of the program and
+				     reports success or failure on multiple test. For more
+				     information on smoke-test see the section labeled 
+				     'Test' below.
+
+			make dist : builds the distribution tarball including the makefile, 
+				    c program, and the readme.
+
+			make clean : removes all files created by the makefile, returning
+				     the direcotry to its default state.
+
+	README : a file describing the contents of the directory and any information regarding
+		 the functionality (limitations and features) and testing of the program.
+
+Test : The test is designed to test basic functionaliy of the program and is split into 
+       different tests:
+
+	test1 :
+
+	test2 :
+
+	test3 :
+
+	test4 :
+
+	test5 :
+
+	test6 :
+	
+	test7 :
+	
+	test8 :
+
+	test9 :
+
+	test10 :
+
+	test11 :
+
+	test12 :
+	
+	test13 :
+
+	test14 :
+
+	test15 :
+
+	test16 :
+
+	* Note : Running `make check' will automatically build the executable regardless of 
+		 whether make has been called. It is also worth noting that a test may fail 
+		 even if it appears to have proper behavior if it returns the wrong exit code.
+
+
