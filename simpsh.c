@@ -63,37 +63,39 @@ void closeAllFildes (int start, int N) {
     }
 }
 
-void usageMessage (int who) {
+void usageMessage (int who, int end) {
     if (getrusage (who, &usage) < 0) {
-        fprintf (stderr, "Profile Error : Unable to get usage information\n");
+        fprintf (stderr, "--Profile Error : Unable to get usage information\n");
 	perror ("");
         EXIT_STATUS = 1;
-    }	
+    }
     else {
-        if (who == RUSAGE_SELF) {
-            double totalUserTime = (double)usage.ru_utime.tv_sec + (double)usage.ru_utime.tv_usec/100000;
-            double totalSystemTime = (double)usage.ru_stime.tv_sec + (double)usage.ru_stime.tv_usec/100000; 
-            double deltaUserTime = totalUserTime - prevUserTime;
+        double totalUserTime = (double)usage.ru_utime.tv_sec + (double)usage.ru_utime.tv_usec/1000000;     
+        double totalSystemTime = (double)usage.ru_stime.tv_sec + (double)usage.ru_stime.tv_usec/1000000;
+
+	if (who == RUSAGE_SELF) {
+	    double deltaUserTime = totalUserTime - prevUserTime;
             double deltaSystemTime = totalSystemTime - prevSystemTime;
 
-            printf ("Current option user time: %f\n", deltaUserTime);
-            printf ("Current option system time: %f\n", deltaSystemTime);
-            printf ("Total user time: %f\n", totalUserTime);
-            printf ("Total system time: %f\n", totalSystemTime);
-	    
+            printf ("current command user time: %f\n", deltaUserTime);
+            printf ("current command system time: %f\n", deltaSystemTime);
+	   
             prevUserTime = totalUserTime;
             prevSystemTime = totalSystemTime;
         }
-        else {
-	    double totalUserTime = (double)usage.ru_utime.tv_sec + (double)usage.ru_utime.tv_usec/100000;
-            double totalSystemTime = (double)usage.ru_stime.tv_sec + (double)usage.ru_stime.tv_usec/100000; 
-
-	    printf ("Current option user time: %f\n", totalUserTime);
-            printf ("Current option system time: %f\n", totalSystemTime);
-            printf ("Total user time: %f\n", totalUserTime);
-            printf ("Total system time: %f\n", totalSystemTime);
+  	
+	if (who == RUSAGE_CHILDREN || end) { 
+            printf ("total user time: %f\n", totalUserTime);
+            printf ("total system time: %f\n", totalSystemTime);
 	}
-    }     
+     
+
+	/*	printf ("maximum resident set size: %ld\n", (long int) usage.ru_maxrss);
+	printf ("integral shared memory size: %ld\n", (long int) usage.ru_ixrss);
+	printf ("integral unshared data size: %ld\n", (long int) usage.ru_idrss);
+	printf ("integral unshared stack size: %ld\n", (long int) usage.ru_isrss);
+	*/
+    }
 }
 
 int is_active_fd (int fd) {
@@ -107,6 +109,8 @@ int main (int argc, char** argv) {
         perror ("");
         exit (-1);
     }
+
+    opterr = 0;
 
     static struct option long_options[] = {
         { "append",	no_argument,		0,		'a'	},
@@ -142,7 +146,8 @@ int main (int argc, char** argv) {
     int oflags = 0;
 
     while ( (opt = getopt_long (argc, argv, "", long_options, &long_index)) != -1) {
-	if (F_VERBOSE) {
+      if (opt != '?') { 
+        if (F_VERBOSE || F_PROFILE) {
 	    printf ("--%s", long_options[long_index].name);
 	    if (long_options[long_index].has_arg == required_argument) {
 	    	printf (" %s", optarg);
@@ -150,7 +155,7 @@ int main (int argc, char** argv) {
 	    if (long_options[long_index].val == 'm') {
 		int arg_i = optind;
 		while (arg_i < argc) {
-		    if (argv[arg_i][0] == '-' && argv[arg_i][1] != '-')
+		    if (argv[arg_i][0] == '-' && argv[arg_i][1] == '-')
 			break;
 		    printf (" %s", argv[arg_i]);
 		    arg_i++;
@@ -428,6 +433,7 @@ int main (int argc, char** argv) {
 		closeAllFildes (3, fd_count);
 		while (i < Nsubprocess) {
 		    id = waitpid(-1, &exit_code, 0);
+		    exit_code = WEXITSTATUS (exit_code);
 		    printf ("%d ", exit_code);
 		    if (exit_code > max_code) {
 			max_code = exit_code;	    
@@ -449,9 +455,9 @@ int main (int argc, char** argv) {
 		}
 	        if (F_PROFILE) {
 		    printf ("Parent:\n");
-	            usageMessage (RUSAGE_SELF);
+		    usageMessage (RUSAGE_SELF, 1);
 		    printf ("Children:\n");
-		    usageMessage (RUSAGE_CHILDREN);
+		    usageMessage (RUSAGE_CHILDREN, 1);
 	        }
 		free (subprocesses);
 		if (EXIT_STATUS != 0)
@@ -472,7 +478,6 @@ int main (int argc, char** argv) {
 	    }
 	    case 'A': // abort
 	    {
-	      //raise (SIGABRT);
 	        raise (SIGSEGV);
 	        break;
 	    }
@@ -502,18 +507,16 @@ int main (int argc, char** argv) {
 	    }
 	    case '?':
 	    {
-	        fprintf (stderr, "Error : command not recognized\n");
 		break;
 	    }
 	}
 
 	if (F_PROFILE) {
-	    usageMessage (RUSAGE_SELF);
+	    usageMessage (RUSAGE_SELF, 0);
 	}
+      }
     }
-	
     free (subprocesses);
     closeAllFildes (3, fd_count);
-
     exit(EXIT_STATUS);
 }

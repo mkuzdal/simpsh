@@ -132,40 +132,44 @@ This directory contains the following files:
 Test : The test is designed to test basic functionaliy of the program and is split into 
        different tests:
 
-	test1 :
+	test1 : Makes sure basic commands (--rdonly) can be called without error.
 
-	test2 :
+	test2 : Makes sure that using `--rdonly' does not include any other flags
+	        by default (e.g., the --creat flag).
 
-	test3 :
+	test3 : Makes sure that using `--wronly' does not include any other flags 
+	        by default (e.g., the --trunc flag). 
 
-	test4 :
+	test4 : Basic command test including --rdonly --wronly and --command.
 
-	test5 :
+	test5 : Tests other basic commands such as wc.
 
-	test6 :
+	test6 : Makes sure that the script continues to the next option in the list when
+	        an error occurs.
 	
-	test7 :
+	test7 : Makes sure that `--verbose' works properly by making sure all commands before
+	        `--verbose' are not printed; only those after.
 	
-	test8 :
+	test8 : Makes sure that --command gives an error when an invalid file descriptor
+	        is used.
 
-	test9 :
+	test9 : Tests the file flags (--creat and --trunc).
 
-	test10 :
+	test10 : Checks the `--pipe' command.
 
-	test11 :
+	test11 : Makes sure `--abort' works properly. An abort message should be displayed
+	         on the screen.
 
-	test12 :
+	test12 : Aggregate test of multiple commands (--pipe, --wait, --close, etc...)
 	
-	test13 :
-
-	test14 :
-
-	test15 :
-
-	test16 :
+	test13 : Makes sure that when a file is closed, an error message appears if this file
+	         is later used by a `--command' option.
 
 	* Note : Running `make check' will automatically build the executable regardless of 
 		 whether make has been called. It is also worth noting that a test may fail 
 		 even if it appears to have proper behavior if it returns the wrong exit code.
 
+ 	Each test case can be run individually by calling 'make testN' where N is the test case
+	you would like to test. To test the functionality of a specific section (i.e., lab1a or
+	lab1b), you can use 'make test1m' where m is the section letter.
 

@@ -7,11 +7,11 @@ simpsh: simpsh.c
 	$(CC) $(CFLAGS) simpsh.c -o $@
 
 
-check: simpsh test1a
+check: simpsh test1a test1b
 	@-echo -e "\e[1m------------------------\e[0m"
 
 test1a: test1 test2 test3 test4 test5 test6 test7 test8
-test1b: test9
+test1b: test9 test10 test11 test12 test13
 test1:
 	@-echo -e "\e[1m----- TEST CASE 1: -----\n\e[0m"; \
 	echo "test1" | cat > _0_.txt; \
@@ -181,9 +181,109 @@ test8:
 	fi; \
 	rm _8_i.txt _8_o.txt _8_e.txt _8_e_o.txt
 
+test9:
+	@-echo -e "\e[1m----- TEST CASE 9: -----\n\e[0m"; \
+	touch _9_o.txt; \
+	echo "test9" | cat > _0_.txt; \
+	cat _0_.txt > _9_.txt; \
+	./simpsh --rdonly _9_.txt --trunc --wronly _9_o.txt --creat --wronly _9_e.txt --command 0 1 2 cat > /dev/null 2>&1; \
+	if [ $$? -eq 0 ] ; then \
+		diff _9_o.txt _0_.txt; \
+		if [ $$? -eq 0 ] ; then \
+			if [ -e _9_e.txt ] ; then \
+				echo -e "     Test 9 \e[32;1mSuccess!\n\e[0m"; \
+			else \
+				echo "     Function did not create file properly."; \
+				echo -e "     Test 9 \e[31;1mFailed!\n\e[0m"; \
+			fi \
+		else \
+			echo "     Function output incorrect."; \
+			echo -e "     Test 9 \e[31;1mFailed!\n\e[0m"; \
+		fi \
+	else \
+		echo "     Simpsh did not exit with status 0."; \
+		echo -e "     Test 9 \e[31;1mFailed!\n\e[0m"; \
+	fi; \
+	rm -f _0_.txt _9_.txt _9_o.txt _9_e.txt    
+
+test10:
+	@-echo -e "\e[1m----- TEST CASE 10: -----\n\e[0m"; \
+	touch _10_o.txt; \
+	touch _10_e.txt; \
+	echo "test10" | cat > _0_.txt; \
+	cat _0_.txt > _10_.txt; \
+	./simpsh --rdonly _10_.txt --wronly _10_o.txt --pipe --wronly _10_e.txt --command 0 3 4 cat --command 2 1 4 cat > /dev/null 2>&1; \
+	if [ $$? -eq 0 ] ; then \
+		diff _10_o.txt _0_.txt; \
+		if [ $$? -eq 0 ] ; then \
+			echo -e "     Test 10 \e[32;1mSuccess!\n\e[0m"; \
+		else \
+			echo "     Function output incorrect."; \
+			echo -e "     Test 10 \e[31;1mFailed!\n\e[0m"; \
+		fi \
+	else \
+		echo "     Simpsh did not exit with status 0."; \
+		echo -e "     Test 10 \e[31;1mFailed!\n\e[0m"; \
+	fi; \
+	rm _0_.txt _10_.txt _10_o.txt _10_e.txt
+
+test11:
+	@-echo -e "\e[1m----- TEST CASE 11: -----\n\e[0m"; \
+	touch _11_o.txt; \
+	touch _11_e.txt; \
+	echo "test11" | cat > _0_.txt; \
+	cat _0_.txt > _11_.txt; \
+	./simpsh --rdonly _11_.txt --wronly _11_o.txt --wronly _11_e.txt --abort --command 0 1 2 cat > /dev/null 2>&1; \
+	if [ $$? -ne 0 ] ; then \
+		if [ -s "_11_o.txt" ] ; then \
+			echo "     Function output incorrect."; \
+			echo -e "     Test 11 \e[31;1mFailed!\n\e[0m"; \
+		else \
+			echo -e "     Test 11 \e[32;1mSuccess!\n\e[0m"; \
+		fi \
+	else \
+		echo "     Simpsh exited with status 0."; \
+		echo -e "     Test 11 \e[31;1mFailed!\n\e[0m"; \
+	fi; \
+	rm _0_.txt _11_.txt _11_o.txt _11_e.txt
+
+test12:
+	@-echo -e "\e[1m----- TEST CASE 12: -----\n\e[0m"; \
+	touch _12_o.txt; \
+	touch _12_e.txt; \
+	echo "test12" | cat > _0_.txt; \
+	cat _0_.txt > _12_.txt; \
+	./simpsh --rdonly _12_.txt --wronly _12_o.txt --wronly _12_e.txt --pipe --command 0 4 2 cat --command 3 1 2 cat --close 3 --close 4 --wait  > /dev/null 2>&1; \
+	if [ $$? -eq 0 ] ; then \
+		echo -e "     Test 12 \e[32;1mSuccess!\n\e[0m"; \
+	else \
+		echo "     Simpsh did not exit with status 0."; \
+		echo -e "     Test 12 \e[31;1mFailed!\n\e[0m"; \
+	fi; \
+	rm _0_.txt _12_.txt _12_o.txt _12_e.txt
+
+test13:
+	@-echo -e "\e[1m----- TEST CASE 13: -----\n\e[0m"; \
+	touch _13_o.txt; \
+	touch _13_e.txt; \
+	touch _13_e_m.txt; \
+	echo "test13" | cat > _0_.txt; \
+	cat _0_.txt > _13_.txt; \
+	./simpsh --rdonly _13_.txt --wronly _13_o.txt --wronly _13_e.txt --close 2 --command 0 1 2 cat > /dev/null 2>_13_e_m.txt; \
+	if [ $$? -ne 0 ] ; then \
+		echo -e "     Test 12 \e[32;1mSuccess!\n\e[0m"; \
+	else \
+		echo "     Simpsh exited with status 0."; \
+		echo -e "     Test 12 \e[31;1mFailed!\n\e[0m"; \
+	fi; \
+	echo "     You should see invalid file decriptor message below: "; \
+	echo ""; \
+	cat _13_e_m.txt; \
+	echo ""; \
+	rm _0_.txt _13_.txt _13_o.txt _13_e.txt _13_e_m.txt
 
 dist: lab1-matthewkuzdal.tar.gz
-submission_files = README Makefile simpsh.c
+submission_files = README Makefile simpsh.c report.pdf
 lab1-matthewkuzdal.tar.gz: $(submission_files)
 	tar cf - --transform='s|^|lab1-matthewkuzdal/|' $(submission_files) | gzip -9 >$@
 
