@@ -1,7 +1,7 @@
 README for Lab1a: Simpleton Shell
 Matthew Kuzdal - ID: 404564296
 
-##Installation:
+Installation:
 	Simply clone the repository to the desired locations and run the command
 	$ ./make
 	which will build the shell. You can now run commands from the shell as you please.
@@ -181,7 +181,7 @@ Test : The test is designed to test basic functionaliy of the program and is spl
 	you would like to test. To test the functionality of a specific section (i.e., lab1a or
 	lab1b), you can use 'make test1m' where m is the section letter.
 
-##Example
+Example
 To run a command (e.g., $ sort < input.txt > output.txt 2> error.txt) you would use the following syntax:
 	
 	./simpsh --rdonly input.txt --creat --trunc output.txt --creat --trunc error.txt --command 0 1 2 sort --wait
