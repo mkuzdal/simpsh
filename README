@@ -1,10 +1,15 @@
 README for Lab1a: Simpleton Shell
 Matthew Kuzdal - ID: 404564296
 
+##Installation:
+	Simply clone the repository to the desired locations and run the command
+	$ ./make
+	which will build the shell. You can now run commands from the shell as you please.
+	
 This directory contains the following files:
 
 	simpsh.c : a c program that acts as a very simple, stripped down shell with basic file
-		   access and pipeing functionality. The following option descriptions, 
+		   access, pipeing, and process forking functionality. The following option descriptions, 
 		   limitations, and extra features are described below:
 
 		The following options are the file flags that affect the next file being opened.
@@ -97,7 +102,10 @@ This directory contains the following files:
 				    is is being executed. The verbose flag will only output all 
 				    options after and including the verbose flag.
 
-			--profile :
+			--profile : outputs the system and user time of each subsequent command
+				    following the profile options, and at the end of execution
+				    outputs the total user and system time for the parent and
+				    children processes
 			
 			--abort : crashes the shell by raising a segmentation violation causing 
 				  a core dump and immediatly exiting the program.
@@ -173,3 +181,11 @@ Test : The test is designed to test basic functionaliy of the program and is spl
 	you would like to test. To test the functionality of a specific section (i.e., lab1a or
 	lab1b), you can use 'make test1m' where m is the section letter.
 
+##Example
+To run a command (e.g., $ sort < input.txt > output.txt 2> error.txt) you would use the following syntax:
+	
+	./simpsh --rdonly input.txt --creat --trunc output.txt --creat --trunc error.txt --command 0 1 2 sort --wait
+	
+The 0 1 2 denote the open file descriptors to be used as input output and error for the command respectively.
+In the example since input.txt was opened first, it will use file descriptor 0, and similarly for output.txt and error.txt
+The --wait option must be used to have the shell wait for each of the child processes to finish.
